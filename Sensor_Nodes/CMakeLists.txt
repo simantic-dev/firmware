@@ -137,6 +137,7 @@ function(feb_define_sensor_node_variant VARIANT)
     set(TARGET_NAME "${PROJECT_NAME}_${VARIANT}")
 
     add_executable(${TARGET_NAME} ${ALL_SOURCES})
+    feb_target_mcu(${TARGET_NAME} M4)
     target_include_directories(${TARGET_NAME} PRIVATE ${BASE_INCLUDES})
         target_link_libraries(${TARGET_NAME} PRIVATE
         m

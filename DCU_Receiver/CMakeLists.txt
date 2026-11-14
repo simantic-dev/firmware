@@ -62,6 +62,7 @@ list(APPEND ALL_SOURCES ${CAN_LIB_SOURCES})
 # ── Middleware: stm32-hal-rfm95 (LoRa radio driver) ─────────────────
 if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/stm32-hal-rfm95")
     add_subdirectory(Middlewares/Third_Party/stm32-hal-rfm95)
+    feb_target_mcu(stm32-hal-rfm95-receiver M4)
 endif()
 
 
@@ -114,6 +115,7 @@ endif()
 # ══════════════════════════════════════════════════════════════════════
 
 add_executable(${PROJECT_NAME} ${ALL_SOURCES})
+feb_target_mcu(${PROJECT_NAME} M4)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${BASE_INCLUDES})
 

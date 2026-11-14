@@ -21,10 +21,7 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 # ── Compile definitions ──────────────────────────────────────────────
 add_compile_definitions(
     USE_HAL_DRIVER
-    STM32F469xx
-    FEB_UART_USE_FREERTOS=1
-    FEB_CAN_USE_FREERTOS=1
-    FEB_LOG_USE_FREERTOS=1
+    STM32U599xx
     $<$<CONFIG:Debug>:DEBUG>
 )
 
@@ -38,152 +35,93 @@ file(GLOB_RECURSE CORE_SOURCES "Core/*.c" "Core/*.cpp")
 # Startup assembly
 file(GLOB STARTUP_ASM "startup_*.s")
 
-# HAL/LL driver sources (safe: HAL_MODULE_ENABLED guards; exclude templates)
-file(GLOB HAL_SOURCES "Drivers/STM32F4xx_HAL_Driver/Src/*.c")
+# HAL/LL driver sources (CubeMX copies only the modules the .ioc uses)
+file(GLOB HAL_SOURCES "Drivers/STM32U5xx_HAL_Driver/Src/*.c")
 list(FILTER HAL_SOURCES EXCLUDE REGEX "_template\\.c$")
 
-# Collect LVGL Core Sources
-file(GLOB_RECURSE LVGL_SOURCES Drivers/lvgl/src/*.c)
-
-# Collect LVGL HAL Sources
-file(GLOB_RECURSE LVGL_HAL_SOURCES Drivers/hal_stm_lvgl/*.c)
-
-# Combine base sources
-set(ALL_SOURCES ${CORE_SOURCES} ${STARTUP_ASM} ${HAL_SOURCES} ${LVGL_SOURCES} ${LVGL_HAL_SOURCES} ${SQUARELINE_SOURCES})
-
-file(GLOB CAN_LIB_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/../common/FEB_CAN_Definitions/gen/*.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../common/FEB_CAN_Library/Src/*.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../common/FEB_CAN_Library/Src/*.cpp"
+# FreeRTOS (X-CUBE-FREERTOS, Cortex-M33 without TrustZone)
+set(FREERTOS_DIR "Middlewares/Third_Party/FreeRTOS/Source")
+file(GLOB FREERTOS_SOURCES
+    "${FREERTOS_DIR}/*.c"
+    "${FREERTOS_DIR}/CMSIS_RTOS_V2/*.c"
+    "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure/*.c"
+    "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
 )
 
 # CAN definitions: generated pack/unpack source (common/FEB_CAN_Definitions)
-list(APPEND ALL_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/../common/FEB_CAN_Definitions/gen/feb_can_db.c" ${CAN_LIB_SOURCES})
+set(CAN_DEFS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../common/FEB_CAN_Definitions")
 
-list(APPEND ALL_SOURCES
-
-    # BSP
-    Drivers/BSP/STM32469I-Discovery/stm32469i_discovery.c
-    Drivers/BSP/STM32469I-Discovery/stm32469i_discovery_lcd.c
-    Drivers/BSP/STM32469I-Discovery/stm32469i_discovery_sdram.c
-    Drivers/BSP/Components/otm8009a/otm8009a.c
-    Drivers/BSP/Components/nt35510/nt35510.c
-    Drivers/BSP/Components/ft6x06/ft6x06.c
-)
-
-# ── Middleware: FATFS application layer ──────────────────────────────
-if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/FATFS")
-    file(GLOB_RECURSE FATFS_APP_SOURCES "FATFS/*.c")
-    list(APPEND ALL_SOURCES ${FATFS_APP_SOURCES})
-endif()
-
-# ── Middleware: FreeRTOS ─────────────────────────────────────────────
-if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS")
-    file(GLOB FREERTOS_CORE "Middlewares/Third_Party/FreeRTOS/Source/*.c")
-    file(GLOB FREERTOS_CMSIS "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/*.c")
-    file(GLOB FREERTOS_PORT "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/*.c")
-    file(GLOB FREERTOS_HEAP "Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c")
-    list(APPEND ALL_SOURCES ${FREERTOS_CORE} ${FREERTOS_CMSIS} ${FREERTOS_PORT} ${FREERTOS_HEAP})
-endif()
-
-# ── Middleware: FatFs ────────────────────────────────────────────────
-if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FatFs")
-    file(GLOB FATFS_CORE "Middlewares/Third_Party/FatFs/src/*.c")
-    file(GLOB FATFS_OPTION "Middlewares/Third_Party/FatFs/src/option/syscall.c")
-    list(APPEND ALL_SOURCES ${FATFS_CORE} ${FATFS_OPTION})
-endif()
-
+set(ALL_SOURCES ${CORE_SOURCES} ${STARTUP_ASM} ${HAL_SOURCES} ${FREERTOS_SOURCES} "${CAN_DEFS_DIR}/gen/feb_can_db.c")
 
 # ══════════════════════════════════════════════════════════════════════
 #  INCLUDE DIRECTORIES
 # ══════════════════════════════════════════════════════════════════════
 
+set(MCU_INCLUDES
+    ${CMAKE_CURRENT_SOURCE_DIR}/Core/Inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/STM32U5xx_HAL_Driver/Inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/STM32U5xx_HAL_Driver/Inc/Legacy
+    ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/CMSIS/Device/ST/STM32U5xx/Include
+    ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/CMSIS/Include
+)
+
 set(BASE_INCLUDES
-    Core/Inc
-    Drivers/STM32F4xx_HAL_Driver/Inc
-    Drivers/STM32F4xx_HAL_Driver/Inc/Legacy
-    Drivers/CMSIS/Device/ST/STM32F4xx/Include
-    Drivers/CMSIS/Include
+    ${MCU_INCLUDES}
+    ${FREERTOS_DIR}/include
+    ${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure
+    ${FREERTOS_DIR}/CMSIS_RTOS_V2
+    Middlewares/Third_Party/CMSIS/RTOS2/Include
+    "${CAN_DEFS_DIR}/.."         # resolves #include "FEB_CAN_Definitions/gen/feb_can_db.h"
+    "${CAN_DEFS_DIR}/gen"        # resolves #include "feb_can.h" directly
+    Core/User/Inc                # standard: <BOARD>_Main / _Tasks / _CAN / _CAN_Publish / _Commands
+    Core/User/Inc/App            # board-specific modules
 )
 
-# # Auto-discover Core/User/Inc if it exists
-# if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Core/User/Inc")
-#     list(APPEND BASE_INCLUDES Core/User/Inc)
-# endif()
+# ══════════════════════════════════════════════════════════════════════
+#  LVGL + UI
+# ══════════════════════════════════════════════════════════════════════
 
-# CAN definitions (common/FEB_CAN_Definitions)
-set(CAN_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../common/FEB_CAN_Definitions")
-list(APPEND BASE_INCLUDES
-    "${CAN_LIB_DIR}/.."          # resolves #include "FEB_CAN_Definitions/gen/feb_can_db.h"
-    "${CAN_LIB_DIR}/gen"         # resolves #include "feb_can.h" directly
+set(LVGL_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/LVGL")
+if(NOT EXISTS "${LVGL_ROOT}/lvgl/lvgl.h")
+    message(FATAL_ERROR "LVGL submodule missing. Run: git submodule update --init --recursive")
+endif()
+
+file(GLOB_RECURSE LVGL_SOURCES "${LVGL_ROOT}/lvgl/src/*.c" "${LVGL_ROOT}/lvgl/src/*.S")
+add_library(lvgl STATIC ${LVGL_SOURCES})
+feb_target_mcu(lvgl M33)
+target_include_directories(lvgl
+    PUBLIC
+        ${LVGL_ROOT}
+        ${LVGL_ROOT}/lvgl
+        ${LVGL_ROOT}/lvgl/include
+    PRIVATE
+        ${MCU_INCLUDES}
 )
 
-# FATFS includes
-if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/FATFS")
-    list(APPEND BASE_INCLUDES FATFS/Target FATFS/App)
-endif()
-
-# FreeRTOS includes
-if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS")
-    list(APPEND BASE_INCLUDES
-        Middlewares/Third_Party/FreeRTOS/Source/include
-        Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2
-        Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F
-    )
-endif()
-
-# FatFs includes
-if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FatFs")
-    list(APPEND BASE_INCLUDES Middlewares/Third_Party/FatFs/src)
-endif()
-
-# Common CAN library
-set(CAN_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../common/FEB_CAN_Library")
-list(APPEND BASE_INCLUDES
-    "${CAN_LIB_DIR}/Inc"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../common/FEB_CAN_Definitions/gen"
+add_library(nemagfx STATIC IMPORTED)
+set_target_properties(nemagfx PROPERTIES
+    IMPORTED_LOCATION "${LVGL_ROOT}/lvgl/libs/nema_gfx/lib/core/cortex_m33_revC/gcc/libnemagfx-float-abi-hard.a"
+    INTERFACE_LINK_LIBRARIES lvgl
 )
+target_link_libraries(lvgl PUBLIC nemagfx)
 
-# Auto-discover Core/User/Inc if it exists
-if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Core/User/Inc")
-    list(APPEND BASE_INCLUDES
-        Core/User/Inc          # standard: <BOARD>_Main / _Tasks / _CAN / _CAN_Publish / _Commands
-        Core/User/Inc/Config   # feb_board_config.hpp - the contract the CAN library includes
-        Core/User/Inc/App      # board-specific modules
-        Core/User/Inc/App/UI_Elements
-    )
-endif()
-
-list(APPEND BASE_INCLUDES
-    # BSP Drivers
-    Drivers/BSP/STM32469I-Discovery
-    Drivers/BSP/Components
-    Drivers/BSP/Components/otm8009a
-    Drivers/BSP/Components/nt35510
-    Drivers/BSP/Components/Common
-    Drivers/BSP/Components/ft6x06
-
-    # LVGL + HAL
-    Drivers/lvgl
-    Drivers/hal_stm_lvgl
-
-    # Fonts & Utilities
-    Drivers/Utilities/Fonts
-
-    # LVGL config header location (directory, not file)
-    Drivers
-)
+add_subdirectory(UI)
+target_compile_definitions(lib-ui PUBLIC LV_LVGL_H_INCLUDE_SIMPLE)
 
 # ══════════════════════════════════════════════════════════════════════
 #  EXECUTABLE TARGET
 # ══════════════════════════════════════════════════════════════════════
 
 add_executable(${PROJECT_NAME} ${ALL_SOURCES})
+feb_target_mcu(${PROJECT_NAME} M33)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${BASE_INCLUDES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     m
+    lib-ui
+    lvgl
+    feb_can_cxx
     feb_string_utils
     feb_time
     feb_uart
@@ -205,7 +143,7 @@ target_link_options(${PROJECT_NAME} PRIVATE
 )
 
 # Linker script and map file (project-specific, not in shared toolchain)
-file(GLOB LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/STM32F4*_FLASH.ld")
+file(GLOB LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/STM32U5*_FLASH.ld")
 if(LINKER_SCRIPT)
     list(GET LINKER_SCRIPT 0 LINKER_SCRIPT)
     target_link_options(${PROJECT_NAME} PRIVATE -T "${LINKER_SCRIPT}")

@@ -1,23 +1,21 @@
+#pragma once
+
 /**
  ******************************************************************************
- * @file           : FEB_Main.h
+ * @file           : DASH_Main.h
  * @brief          : DASH Application Header
  * @author         : Formula Electric @ Berkeley
  ******************************************************************************
  */
-
-#ifndef DASH_MAIN_H
-#define DASH_MAIN_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
+  /* Board bring-up before the scheduler starts (called from MX_FREERTOS_Init). */
   void DASH_Init(void);
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* DASH_MAIN_H */

@@ -7,7 +7,7 @@ Firmware for the FEB SN5 Formula E vehicle. Each subdirectory corresponds to a b
 | Directory | Board | MCU | Notes | Docs |
 |-----------|-------|-----|-------|------|
 | `BMS/` | Battery Management System | STM32F446RE | FreeRTOS, cell-monitor front-end | [BMS/README.md](BMS/README.md) |
-| `DASH/` | Driver Dashboard | STM32F469NI | FreeRTOS, LVGL, SDRAM, FATFS | [DASH/README.md](DASH/README.md) |
+| `DASH/` | Driver Dashboard | STM32U599NJ (Riverdi 5") | FreeRTOS, LVGL 9.6 + LVGL Pro UI, FDCAN (classic) | [DASH/README.md](DASH/README.md) |
 | `DCU/` | Data Control Unit | STM32F446RE | Placeholder (empty user code) | [DCU/README.md](DCU/README.md) |
 | `LVPDB/` | Low Voltage Power Distribution | STM32F446RE | Dual CAN, 7× TPS | [LVPDB/README.md](LVPDB/README.md) |
 | `PCU/` | Powertrain Control Unit | STM32F446RE | Dual CAN, triple ADC, RMS gateway | [PCU/README.md](PCU/README.md) |
@@ -23,6 +23,7 @@ Shared across boards, under `common/`. See [`common/README.md`](common/README.md
 |---|---|---|
 | `feb_io` | Umbrella: UART + Log + Console + Commands + Version + Time + String_Utils | [FEB_Serial_Library](common/FEB_Serial_Library/README.md) |
 | `feb_can` | FreeRTOS-safe CAN runtime (dispatcher) | [FEB_CAN_Library](common/FEB_CAN_Library/README.md) |
+| `feb_can_cxx` | C++ CAN publish/subscribe | [FEB_CAN](common/FEB_CAN/Library/README.md) |
 | *(compiled into each board)* | CAN message definitions + code generator | [FEB_CAN_Definitions](common/FEB_CAN_Definitions/README.md) |
 | `feb_tps` | TPS2482 power-monitor driver | [FEB_TPS_Library](common/FEB_TPS_Library/README.md) |
 | `feb_time` | 64-bit microsecond monotonic clock | [FEB_Time_Library](common/FEB_Time_Library/README.md) |
@@ -33,10 +34,12 @@ Shared across boards, under `common/`. See [`common/README.md`](common/README.md
 ```
 cmake/                           # Shared toolchain files
   gcc-arm-none-eabi.cmake        # ARM GCC cross-compiler config
+  FEB_Mcu.cmake                  # feb_target_mcu(): per-board CPU/FPU flags
   FEB_Version.cmake              # Per-board build provenance generator
 common/                          # Shared libraries (see common/README.md)
   FEB_Serial_Library/            # feb_io umbrella + sub-libraries
   FEB_CAN_Library/               # feb_can runtime dispatcher
+  FEB_CAN/Library/               # feb_can_cxx, its C++ replacement
   FEB_CAN_Definitions/           # CAN message defs + code generator
   FEB_TPS_Library/               # feb_tps
   FEB_Time_Library/              # feb_time
@@ -55,7 +58,7 @@ third-party/                     # Vendored external code (lwgps, etc.)
 ## Cloning the Repository
 
 ```bash
-git clone https://github.com/Formula-Electric-Berkeley/FEB_FIRMWARE_SN5.git
+git clone --recurse-submodules https://github.com/Formula-Electric-Berkeley/FEB_FIRMWARE_SN5.git
 ```
 
 ## Getting Started
@@ -69,6 +72,7 @@ For first-time setup, run the setup script:
 
 This script:
 - Installs the toolchain versions pinned in `.settings/bundles.store.json` (via `cube`)
+- Initializes git submodules
 - Installs pre-commit hooks
 - Configures CMake
 - Runs an initial build to verify everything works
@@ -332,7 +336,7 @@ GitHub Actions runs on pushes and pull requests to `main`:
 | Board | Flash Limit | MCU |
 |-------|-------------|-----|
 | BMS, PCU, LVPDB, DCU, DCU_Receiver, Sensor_Nodes | 512 KB | STM32F446RE |
-| DASH | 2 MB | STM32F469NI |
+| DASH | 4 MB | STM32U599NJ |
 
 ## Releases
 

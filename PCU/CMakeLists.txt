@@ -74,6 +74,7 @@ list(APPEND BASE_INCLUDES
 # ══════════════════════════════════════════════════════════════════════
 
 add_executable(${PROJECT_NAME} ${ALL_SOURCES})
+feb_target_mcu(${PROJECT_NAME} M4)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${BASE_INCLUDES})
 

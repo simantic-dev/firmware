@@ -1,0 +1,31 @@
+# lv_conf.h is generated from this file and lvgl/lv_conf_template.h:
+#   python3 lvgl/scripts/generate_lv_conf.py
+# run in this directory.
+#
+# Based on lv_port_riverdi_stm32u5 (vendor port for this display), minus the
+# demos, plus what LVGL 9.6 and LVGL Pro exported code require.
+#
+# Lives outside Middlewares/: CubeMX deletes unmanaged folders there on
+# regeneration.
+
+LV_COLOR_FORMAT_DEFAULT    LV_COLOR_FORMAT_RGB565
+LV_MEM_SIZE                (96 * 1024U)
+LV_USE_NEMA_GFX            1
+LV_USE_NEMA_HAL            LV_NEMA_HAL_STM32
+LV_USE_NEMA_LIB            LV_NEMA_LIB_M33_REVC
+LV_USE_NEMA_VG             1
+LV_NEMA_GFX_MAX_RESX       800
+LV_NEMA_GFX_MAX_RESY       480
+LV_OBJ_STYLE_CACHE         1
+LV_USE_OBJ_ID_BUILTIN      0
+LV_FONT_MONTSERRAT_20      1
+LV_FONT_MONTSERRAT_24      1
+LV_FONT_MONTSERRAT_26      1
+LV_USE_SYSMON              1
+LV_USE_PERF_MONITOR        0
+LV_USE_ST_LTDC             1
+LV_ST_LTDC_USE_DMA2D_FLUSH 1
+
+# Required by LVGL Pro exported code
+LV_USE_OBJ_NAME            1
+LV_USE_TRANSLATION         1

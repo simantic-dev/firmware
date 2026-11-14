@@ -18,7 +18,7 @@ jobs:
           - project: PCU
             flash_limit: 524288
           - project: DASH
-            flash_limit: 2097152
+            flash_limit: 4194304
           - project: LVPDB
             flash_limit: 524288
           - project: DCU
@@ -35,6 +35,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          submodules: recursive
 
       - name: Resolve source dir
         id: resolve

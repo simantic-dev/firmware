@@ -23,7 +23,7 @@ Everyday tooling for the FEB_FIRMWARE_SN5 repo. All scripts are POSIX `bash` and
 ./scripts/setup.sh -h
 ```
 
-Steps: install pinned bundles via `cube` → pre-commit install → CMake configure → initial build.
+Steps: install pinned bundles via `cube` → `git submodule update --init --recursive` → pre-commit install → CMake configure → initial build.
 
 Requires the `cube` CLI from the STM32Cube for VS Code extension (see the top-level [README.md](../README.md#environment-setup)). The script runs `cube bundle install --project` at the repo root and does **not** edit any shell profile. CI / non-TTY runs fall back to safe defaults for every prompt.
 

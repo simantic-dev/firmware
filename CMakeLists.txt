@@ -3,6 +3,8 @@ project(FEB_FIRMWARE_SN5 C CXX ASM)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
+include(cmake/FEB_Mcu.cmake)
+
 # Common libraries (must come before board subdirectories)
 add_subdirectory(common)
 
