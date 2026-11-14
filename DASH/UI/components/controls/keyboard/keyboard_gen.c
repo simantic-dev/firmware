@@ -84,9 +84,9 @@ lv_obj_t * keyboard_create(lv_obj_t * parent, lv_obj_t * textarea, lv_keyboard_m
 
         lv_obj_add_style(lv_keyboard_0, &style_keyboard, 0);
         lv_obj_add_style(lv_keyboard_0, &style_panel_light, 0);
-        lv_obj_bind_style(lv_keyboard_0, &style_panel_dark, 0, &subject_theme_dark, 1);
+        lv_obj_bind_style(lv_keyboard_0, &style_panel_dark, 0, subject_theme_dark, 1);
         lv_obj_add_style(lv_keyboard_0, &style_kb_key_light, LV_PART_ITEMS);
-        lv_obj_bind_style(lv_keyboard_0, &style_kb_key_dark, LV_PART_ITEMS, &subject_theme_dark, 1);
+        lv_obj_bind_style(lv_keyboard_0, &style_kb_key_dark, LV_PART_ITEMS, subject_theme_dark, 1);
         lv_obj_add_style(lv_keyboard_0, &style_kb_key_accent, LV_PART_ITEMS | LV_STATE_CHECKED);
         lv_obj_add_style(lv_keyboard_0, &style_kb_key_pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
 

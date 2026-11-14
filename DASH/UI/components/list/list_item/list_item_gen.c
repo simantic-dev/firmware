@@ -71,19 +71,19 @@ lv_obj_t * list_item_create(lv_obj_t * parent, const char * title, const char * 
     if (UI_check_target(UI_TARGET_ALL)) {
         lv_obj_t * container_0 = container_create(parent, SPACE_MD, SPACE_MD, LV_FLEX_FLOW_ROW, 0);
         lv_obj_set_name_static(container_0, "list_item_#");
-        lv_obj_set_flag(container_0, LV_OBJ_FLAG_CLICKABLE, true);
+        lv_obj_set_clickable(container_0, true);
 
         lv_obj_add_style(container_0, &style_list_row, 0);
         lv_obj_add_style(container_0, &style_list_row_pressed, LV_STATE_PRESSED);
         lv_obj_t * monoicon_0 = monoicon_create(container_0, icon);
-        lv_obj_set_flag(monoicon_0, LV_OBJ_FLAG_HIDDEN, !icon);
+        lv_obj_set_hidden(monoicon_0, !icon);
 
         lv_obj_t * container_1 = container_create(container_0, 0, SPACE_XS, LV_FLEX_FLOW_COLUMN, 1);
-        lv_obj_set_flag(container_1, LV_OBJ_FLAG_CLICKABLE, false);
+        lv_obj_set_clickable(container_1, false);
         h5_create(container_1, title, "");
 
         lv_obj_t * text_0 = text_create(container_1, subtitle);
-        lv_obj_set_flag(text_0, LV_OBJ_FLAG_HIDDEN, ((subtitle) == NULL || (subtitle)[0] == '\0'));
+        lv_obj_set_hidden(text_0, ((subtitle) == NULL || (subtitle)[0] == '\0'));
         lv_obj_add_style(text_0, &style_text_muted, 0);
 
         lv_obj_t * trailing = container_create(container_0, 0, SPACE_SM, LV_FLEX_FLOW_ROW, 0);

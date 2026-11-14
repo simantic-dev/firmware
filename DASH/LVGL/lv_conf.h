@@ -1151,7 +1151,7 @@
  *  The exact limit depends on font size, face and format, but enable it if
  *  you see issues with fonts above roughly 10,000 characters.
  */
-#define LV_FONT_FMT_TXT_LARGE 0
+#define LV_FONT_FMT_TXT_LARGE 1
 
 /** Compressed fonts */
 #define LV_USE_FONT_COMPRESSED 0

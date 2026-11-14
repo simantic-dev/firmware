@@ -55,7 +55,7 @@ static uint32_t UI_target = UI_COMPILE_TARGET;
  *  Permanent screens
  *-------------------*/
 
-lv_obj_t * screen_components = NULL;
+lv_obj_t * screen_feb = NULL;
 
 /*----------------
  * Fonts
@@ -75,6 +75,8 @@ lv_font_t * font_h2;
 extern lv_font_t font_h2_data;
 lv_font_t * font_h1;
 extern lv_font_t font_h1_data;
+lv_font_t * font_guage_lg;
+extern lv_font_t font_guage_lg_data;
 
 /*----------------
  * Images
@@ -190,10 +192,11 @@ lv_style_t style_scrollbar;
  * Subjects
  *----------------*/
 
-lv_subject_t subject_theme_dark;
-lv_subject_t subject_brightness;
-lv_subject_t subject_show_keyboard;
-lv_subject_t subject_wheel_speed;
+lv_subject_t * subject_theme_dark;
+lv_subject_t * subject_brightness;
+lv_subject_t * subject_show_keyboard;
+lv_subject_t * subject_wheel_speed;
+lv_subject_t * subject_torque_percent;
 
 /**********************
  *      MACROS
@@ -265,6 +268,12 @@ void UI_init_gen(const char * asset_path)
             /* font_h1 */
             /* get font 'font_h1' from a C array */
             font_h1 = &font_h1_data;
+
+        }
+        if (!font_guage_lg) {
+            /* font_guage_lg */
+            /* get font 'font_guage_lg' from a C array */
+            font_guage_lg = &font_guage_lg_data;
 
         }
     }
@@ -518,14 +527,20 @@ void UI_init_gen(const char * asset_path)
     /*----------------
      * Subjects
      *----------------*/
-    lv_subject_init_int(&subject_theme_dark, 0);
-    lv_subject_set_min_value_int(&subject_theme_dark, 0);
-    lv_subject_set_max_value_int(&subject_theme_dark, 1);
-    lv_subject_init_int(&subject_brightness, 60);
-    lv_subject_set_min_value_int(&subject_brightness, 0);
-    lv_subject_set_max_value_int(&subject_brightness, 100);
-    lv_subject_init_int(&subject_show_keyboard, 0);
-    lv_subject_init_int(&subject_wheel_speed, 0);
+    subject_theme_dark = lv_subject_create(LV_SUBJECT_TYPE_INT);
+    lv_subject_set_min_value_int(subject_theme_dark, 0);
+    lv_subject_set_max_value_int(subject_theme_dark, 1);
+    lv_subject_set_int(subject_theme_dark, 0);
+    subject_brightness = lv_subject_create(LV_SUBJECT_TYPE_INT);
+    lv_subject_set_min_value_int(subject_brightness, 0);
+    lv_subject_set_max_value_int(subject_brightness, 100);
+    lv_subject_set_int(subject_brightness, 60);
+    subject_show_keyboard = lv_subject_create(LV_SUBJECT_TYPE_INT);
+    lv_subject_set_int(subject_show_keyboard, 0);
+    subject_wheel_speed = lv_subject_create(LV_SUBJECT_TYPE_INT);
+    lv_subject_set_int(subject_wheel_speed, 0);
+    subject_torque_percent = lv_subject_create(LV_SUBJECT_TYPE_INT);
+    lv_subject_set_int(subject_torque_percent, 50);
 
     /*----------------
      * Translations
@@ -548,6 +563,7 @@ void UI_init_gen(const char * asset_path)
     check_font(&font_h3, "font_h3");
     check_font(&font_h2, "font_h2");
     check_font(&font_h1, "font_h1");
+    check_font(&font_guage_lg, "font_guage_lg");
 
     /* Register fonts */
     lv_xml_register_font(NULL, "font_body_symbols", font_body_symbols);
@@ -557,12 +573,14 @@ void UI_init_gen(const char * asset_path)
     lv_xml_register_font(NULL, "font_h3", font_h3);
     lv_xml_register_font(NULL, "font_h2", font_h2);
     lv_xml_register_font(NULL, "font_h1", font_h1);
+    lv_xml_register_font(NULL, "font_guage_lg", font_guage_lg);
 
     /* Register subjects */
-    lv_xml_register_subject(NULL, "subject_theme_dark", &subject_theme_dark);
-    lv_xml_register_subject(NULL, "subject_brightness", &subject_brightness);
-    lv_xml_register_subject(NULL, "subject_show_keyboard", &subject_show_keyboard);
-    lv_xml_register_subject(NULL, "subject_wheel_speed", &subject_wheel_speed);
+    lv_xml_register_subject(NULL, "subject_theme_dark", subject_theme_dark);
+    lv_xml_register_subject(NULL, "subject_brightness", subject_brightness);
+    lv_xml_register_subject(NULL, "subject_show_keyboard", subject_show_keyboard);
+    lv_xml_register_subject(NULL, "subject_wheel_speed", subject_wheel_speed);
+    lv_xml_register_subject(NULL, "subject_torque_percent", subject_torque_percent);
 
     /* Register callbacks */
 
@@ -628,9 +646,9 @@ void UI_init_gen(const char * asset_path)
     /* If XML is enabled it's assumed that the permanent screens are created
      * manually from XML using lv_xml_create() */
     /* Create all the permanent screens first so that they can reference each other */
-    screen_components = lv_obj_create(NULL);
+    screen_feb = lv_obj_create(NULL);
 
-    screen_components_create();
+    screen_feb_create();
 #endif
 }
 

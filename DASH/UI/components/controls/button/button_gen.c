@@ -74,14 +74,14 @@ lv_obj_t * button_create(lv_obj_t * parent, const char * text, const void * icon
         lv_obj_add_style(lv_button_0, &style_button_pressed, LV_STATE_PRESSED);
         lv_obj_t * lv_image_0 = lv_image_create(lv_button_0);
         lv_image_set_src(lv_image_0, icon);
-        lv_obj_set_flag(lv_image_0, LV_OBJ_FLAG_HIDDEN, !icon);
+        lv_obj_set_hidden(lv_image_0, !icon);
         lv_obj_set_style_image_recolor(lv_image_0, text_color, 0);
         lv_obj_add_style(lv_image_0, &style_button_icon, 0);
 
         lv_obj_t * lv_label_0 = lv_label_create(lv_button_0);
         lv_obj_set_align(lv_label_0, LV_ALIGN_CENTER);
         lv_label_set_text(lv_label_0, text);
-        lv_obj_set_flag(lv_label_0, LV_OBJ_FLAG_HIDDEN, ((text) == NULL || (text)[0] == '\0'));
+        lv_obj_set_hidden(lv_label_0, ((text) == NULL || (text)[0] == '\0'));
 
         the_root = lv_button_0;
     }

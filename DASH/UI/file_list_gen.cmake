@@ -30,6 +30,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/components/typography/text/text_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/font_body_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/font_body_symbols_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/font_guage_lg_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/font_h1_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/font_h2_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/font_h3_data.c
@@ -82,5 +83,6 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/images/icon_wifi_low_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/icon_wifi_zero_data.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_components_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_feb_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/UI_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/UI.c)

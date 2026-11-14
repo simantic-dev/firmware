@@ -61,7 +61,7 @@ lv_obj_t * monoicon_create(lv_obj_t * parent, const void * src)
         lv_obj_set_name_static(image_0, "monoicon_#");
 
         lv_obj_add_style(image_0, &style_monoicon_light, 0);
-        lv_obj_bind_style(image_0, &style_monoicon_dark, 0, &subject_theme_dark, 1);
+        lv_obj_bind_style(image_0, &style_monoicon_dark, 0, subject_theme_dark, 1);
 
         the_root = image_0;
     }

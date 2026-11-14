@@ -65,12 +65,12 @@
 		<!-- Accent + semantic colors (same in both themes) -->
 		<color
 			name="color_accent"
-			value="0x9429FF"
+			value="0x303030"
 			help="Accent / active control color"
 		/>
 		<color
 			name="color_accent_text"
-			value="0xFFFFFF"
+			value="0xebebeb"
 			help="Text/icon drawn on top of the accent color"
 		/>
 		<color
@@ -83,6 +83,9 @@
 			value="0x9AA3B2"
 			help="Neutral track behind sliders/arcs/bars"
 		/>
+
+		<color name="black" value="0x000000" help="Black" />
+		<color name="white" value="0xffffff" help="White" />
 	</consts>
 
 	<!-- Montserrat, compiled in (as_file="false"). Latin range + a few symbols;
@@ -154,6 +157,14 @@
 			bpp="4"
 			range="0x20-0x7F"
 			symbols="°—•"
+			as_file="false"
+		/>
+		<bin
+			name="font_guage_lg"
+			size="350"
+			src_path="fonts/Montserrat-Medium.ttf"
+			bpp="1"
+			range="0x30-0x39"
 			as_file="false"
 		/>
 	</fonts>
@@ -759,6 +770,11 @@
 		<int
 			name="subject_wheel_speed"
 			value="0"
+			help="Current wheel speed big number"
+		/>
+		<int
+			name="subject_torque_percent"
+			value="50"
 			help="Current wheel speed big number"
 		/>
 	</subjects>

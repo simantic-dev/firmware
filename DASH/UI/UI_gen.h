@@ -113,11 +113,11 @@ bool UI_check_target(uint32_t target);
 /**
  * Accent / active control color
  */
-#define COLOR_ACCENT (lv_color_hex(0x9429FF))
+#define COLOR_ACCENT (lv_color_hex(0x303030))
 /**
  * Text/icon drawn on top of the accent color
  */
-#define COLOR_ACCENT_TEXT (lv_color_hex(0xFFFFFF))
+#define COLOR_ACCENT_TEXT (lv_color_hex(0xebebeb))
 /**
  * Destructive / warning color
  */
@@ -126,6 +126,14 @@ bool UI_check_target(uint32_t target);
  * Neutral track behind sliders/arcs/bars
  */
 #define COLOR_TRACK (lv_color_hex(0x9AA3B2))
+/**
+ * Black
+ */
+#define BLACK (lv_color_hex(0x000000))
+/**
+ * White
+ */
+#define WHITE (lv_color_hex(0xffffff))
 
 
 #ifndef LV_XML_EVAL_STRING_BUF_SIZE
@@ -159,7 +167,7 @@ static inline int32_t UI_style_transition_bezier_path_helper(const lv_anim_t * a
  * Permanent screens
  *------------------*/
 
-extern lv_obj_t * screen_components;
+extern lv_obj_t * screen_feb;
 
 /*----------------
  * Global styles
@@ -185,6 +193,7 @@ extern lv_font_t * font_h4;
 extern lv_font_t * font_h3;
 extern lv_font_t * font_h2;
 extern lv_font_t * font_h1;
+extern lv_font_t * font_guage_lg;
 
 
 /*----------------
@@ -243,10 +252,11 @@ extern const void * icon_wifi_zero;
  * Subjects
  *----------------*/
 
-extern lv_subject_t subject_theme_dark;
-extern lv_subject_t subject_brightness;
-extern lv_subject_t subject_show_keyboard;
-extern lv_subject_t subject_wheel_speed;
+extern lv_subject_t * subject_theme_dark;
+extern lv_subject_t * subject_brightness;
+extern lv_subject_t * subject_show_keyboard;
+extern lv_subject_t * subject_wheel_speed;
+extern lv_subject_t * subject_torque_percent;
 
 /**********************
  * GLOBAL PROTOTYPES
@@ -303,6 +313,7 @@ void UI_init_gen(const char * asset_path);
 #include "components/typography/h5/h5_gen.h"
 #include "components/typography/text/text_gen.h"
 #include "screens/screen_components_gen.h"
+#include "screens/screen_feb_gen.h"
 
 #ifdef __cplusplus
 } /*extern "C"*/

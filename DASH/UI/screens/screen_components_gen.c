@@ -34,22 +34,16 @@ lv_obj_t * screen_components_create(void)
 {
     LV_TRACE_OBJ_CREATE("begin");
 
-    static bool screen_created = false;
-    if (screen_created) {
-        LV_LOG_WARN("`screen_components` is already initialized as a permanent screen. Returning with no change.");
-        return screen_components;
-    }
-
 
     lv_obj_t * the_root = NULL;
 
     #if UI_CHECK_COMPILE_TARGET(UI_TARGET_ALL)
     if (UI_check_target(UI_TARGET_ALL)) {
-        lv_obj_t * lv_obj_0 = screen_components;
+        lv_obj_t * lv_obj_0 = lv_obj_create(NULL);
         lv_obj_set_name_static(lv_obj_0, "screen_components_#");
 
         lv_obj_add_style(lv_obj_0, &style_screen_light, 0);
-        lv_obj_bind_style(lv_obj_0, &style_screen_dark, 0, &subject_theme_dark, 1);
+        lv_obj_bind_style(lv_obj_0, &style_screen_dark, 0, subject_theme_dark, 1);
         lv_obj_add_style(lv_obj_0, &style_scrollbar, LV_PART_SCROLLBAR);
         lv_obj_t * content = column_create(lv_obj_0, SPACE_LG, SPACE_MD, 0, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
         lv_obj_set_name(content, "content");
@@ -61,7 +55,7 @@ lv_obj_t * screen_components_create(void)
 
         container_create(row_0, 8, 0, LV_FLEX_FLOW_COLUMN, 1);
 
-        switch_create(row_0, &subject_theme_dark, COLOR_ACCENT);
+        switch_create(row_0, subject_theme_dark, COLOR_ACCENT);
 
         lv_obj_t * panel_0 = panel_create(content, SPACE_LG, SPACE_LG, LV_FLEX_FLOW_COLUMN, 0);
         lv_obj_set_width(panel_0, lv_pct(100));
@@ -95,16 +89,16 @@ lv_obj_t * screen_components_create(void)
         lv_obj_set_width(panel_2, lv_pct(100));
         h4_create(panel_2, "Heading 4", "controls");
 
-        lv_obj_t * slider_0 = slider_create(panel_2, &subject_brightness, 0, 100, COLOR_ACCENT);
+        lv_obj_t * slider_0 = slider_create(panel_2, subject_brightness, 0, 100, COLOR_ACCENT);
         lv_obj_set_width(slider_0, lv_pct(100));
 
-        lv_obj_t * bar_0 = bar_create(panel_2, &subject_brightness, 0, 100, COLOR_ACCENT);
+        lv_obj_t * bar_0 = bar_create(panel_2, subject_brightness, 0, 100, COLOR_ACCENT);
         lv_obj_set_width(bar_0, lv_pct(100));
 
-        lv_obj_t * arc_0 = arc_create(panel_2, &subject_brightness, 0, 100, COLOR_ACCENT);
+        lv_obj_t * arc_0 = arc_create(panel_2, subject_brightness, 0, 100, COLOR_ACCENT);
         lv_obj_t * lv_label_0 = lv_label_create(arc_0);
         lv_obj_set_align(lv_label_0, LV_ALIGN_CENTER);
-        lv_label_bind_text(lv_label_0, &subject_brightness, "%d%%");
+        lv_label_bind_text(lv_label_0, subject_brightness, "%d%%");
         lv_obj_set_style_text_color(lv_label_0, COLOR_ACCENT, 0);
 
         lv_obj_t * panel_3 = panel_create(content, SPACE_LG, SPACE_LG, LV_FLEX_FLOW_COLUMN, 0);
@@ -114,8 +108,8 @@ lv_obj_t * screen_components_create(void)
         lv_obj_t * text_innput_user_name = text_input_create(panel_3, "", "Single line", false);
         lv_obj_set_name(text_innput_user_name, "text_innput_user_name");
         lv_obj_set_width(text_innput_user_name, lv_pct(100));
-        lv_obj_add_subject_set_int_event(text_innput_user_name, &subject_show_keyboard, LV_EVENT_FOCUSED, 1);
-        lv_obj_add_subject_set_int_event(text_innput_user_name, &subject_show_keyboard, LV_EVENT_DEFOCUSED, 0);
+        lv_obj_add_subject_set_int_event(text_innput_user_name, subject_show_keyboard, LV_EVENT_FOCUSED, 1);
+        lv_obj_add_subject_set_int_event(text_innput_user_name, subject_show_keyboard, LV_EVENT_DEFOCUSED, 0);
 
         lv_obj_t * text_input_0 = text_input_create(panel_3, "", "Password", true);
         lv_obj_set_width(text_input_0, lv_pct(100));
@@ -127,14 +121,14 @@ lv_obj_t * screen_components_create(void)
         lv_obj_set_width(panel_4, lv_pct(100));
         h4_create(panel_4, "Heading 4", "selection");
 
-        lv_obj_t * dropdown_0 = dropdown_create(panel_4, "Low\nMedium\nHigh", 0, &subject_brightness);
+        lv_obj_t * dropdown_0 = dropdown_create(panel_4, "Low\nMedium\nHigh", 0, subject_brightness);
         lv_obj_set_width(dropdown_0, lv_pct(100));
 
-        checkbox_create(panel_4, "Enable feature", &subject_brightness, COLOR_ACCENT);
+        checkbox_create(panel_4, "Enable feature", subject_brightness, COLOR_ACCENT);
 
-        checkbox_create(panel_4, "Subscribe", &subject_brightness, COLOR_ACCENT);
+        checkbox_create(panel_4, "Subscribe", subject_brightness, COLOR_ACCENT);
 
-        switch_create(panel_4, &subject_theme_dark, COLOR_ACCENT);
+        switch_create(panel_4, subject_theme_dark, COLOR_ACCENT);
 
         lv_obj_t * list_0 = list_create(content, 0, 0);
         lv_obj_set_width(list_0, lv_pct(100));
@@ -147,7 +141,7 @@ lv_obj_t * screen_components_create(void)
         lv_obj_t * list_item_2 = list_item_create(list_0, "Turn me on!", "", icon_edit);
         lv_obj_t * list_item_2_trailing = list_item_get_trailing(list_item_2);
         if (list_item_2_trailing) {
-        switch_create(list_item_2_trailing, &subject_theme_dark, COLOR_ACCENT);
+        switch_create(list_item_2_trailing, subject_theme_dark, COLOR_ACCENT);
         } else {
         LV_LOG_WARN("`trailing` slot of `list_item_2` doesn't exist");
         }
@@ -156,7 +150,7 @@ lv_obj_t * screen_components_create(void)
         lv_obj_t * list_item_3_trailing = list_item_get_trailing(list_item_3);
         if (list_item_3_trailing) {
         lv_obj_t * lv_label_1 = lv_label_create(list_item_3_trailing);
-        lv_label_bind_text(lv_label_1, &subject_brightness, "%d%%");
+        lv_label_bind_text(lv_label_1, subject_brightness, "%d%%");
         lv_obj_add_style(lv_label_1, &style_text_accent, 0);
         } else {
         LV_LOG_WARN("`trailing` slot of `list_item_3` doesn't exist");
@@ -168,17 +162,15 @@ lv_obj_t * screen_components_create(void)
 
         lv_obj_t * keyboard = keyboard_create(lv_obj_0, text_innput_user_name, LV_KEYBOARD_MODE_TEXT_LOWER);
         lv_obj_set_name(keyboard, "keyboard");
-        lv_obj_set_flag(keyboard, LV_OBJ_FLAG_FLOATING, true);
+        lv_obj_set_floating(keyboard, true);
         lv_obj_set_align(keyboard, LV_ALIGN_BOTTOM_MID);
-        lv_obj_bind_flag_if_eq(keyboard, &subject_show_keyboard, LV_OBJ_FLAG_HIDDEN, 0);
-        lv_obj_add_subject_set_int_event(keyboard, &subject_show_keyboard, LV_EVENT_CANCEL, 0);
-        lv_obj_add_subject_set_int_event(keyboard, &subject_show_keyboard, LV_EVENT_READY, 0);
+        lv_obj_bind_flag_if_eq(keyboard, subject_show_keyboard, LV_OBJ_FLAG_HIDDEN, 0);
+        lv_obj_add_subject_set_int_event(keyboard, subject_show_keyboard, LV_EVENT_CANCEL, 0);
+        lv_obj_add_subject_set_int_event(keyboard, subject_show_keyboard, LV_EVENT_READY, 0);
 
         the_root = lv_obj_0;
     }
     #endif
-
-    if (the_root) screen_created = true;
 
     LV_TRACE_OBJ_CREATE("finished");
 

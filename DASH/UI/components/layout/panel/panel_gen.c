@@ -43,7 +43,7 @@ lv_obj_t * panel_create(lv_obj_t * parent, int32_t pad, int32_t gap, lv_flex_flo
         lv_obj_set_name_static(container_0, "panel_#");
 
         lv_obj_add_style(container_0, &style_panel_light, 0);
-        lv_obj_bind_style(container_0, &style_panel_dark, 0, &subject_theme_dark, 1);
+        lv_obj_bind_style(container_0, &style_panel_dark, 0, subject_theme_dark, 1);
 
         the_root = container_0;
     }
