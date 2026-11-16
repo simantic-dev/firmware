@@ -1,0 +1,14 @@
+# BMS alone: ten ADBMS6830B on SPI1 (cs PC3), operator console on USART2, passive CAN observer.
+machines:
+  bms:
+    mcu: STM32F446RE
+    elf: ../build/Debug/BMS/BMS.elf
+    parts:
+      - { name: adbms,       type: spi-device,  bus: spi1, cs: PC3, script: peers/adbms6830b.py }
+      - { name: consolepeer, type: uart-device, baud: 115200, script: peers/bms-console-peer.py }
+      - { name: canpeer,     type: can-node,    script: peers/bms-can-observer.py }
+media:
+  - type: can
+    connect: [bms.can1, bms.canpeer]
+  - type: uart
+    connect: [bms.usart2, bms.consolepeer]

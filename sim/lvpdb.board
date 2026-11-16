@@ -1,0 +1,41 @@
+# Off-chip parts of the FEB SN5 LVPDB, appended to the STM32F446RE model.
+# Firmware: LVPDB. Peer: lvpdb-tps2482.py (7 TPS2482 power monitors on I2C1, PB8 SCL / PB9 SDA,
+# FEB_Main.h / main.h). Paths resolve against the working directory: run sim from sim/.
+# The DASH stand-in on CAN1 (lvpdb-dash.py) is a scenario part.
+# Power-good lines (FEB_Main.h): LV PB6, SH PC13, LT PA5, BM_L PA9, SM PC7,
+# AF1_AF2 PC4, CP_RF PC2. Each TPS drives its own PG pin high once addressed.
+
+lv_tps: I2C.ScriptedI2cSlave @ i2c1 0x4B
+    file: "peers/lvpdb-tps2482.py"
+    numberOfGpios: 1
+    0 -> gpioPortB@6
+
+sh_tps: I2C.ScriptedI2cSlave @ i2c1 0x4A
+    file: "peers/lvpdb-tps2482.py"
+    numberOfGpios: 1
+    0 -> gpioPortC@13
+
+lt_tps: I2C.ScriptedI2cSlave @ i2c1 0x40
+    file: "peers/lvpdb-tps2482.py"
+    numberOfGpios: 1
+    0 -> gpioPortA@5
+
+bml_tps: I2C.ScriptedI2cSlave @ i2c1 0x4F
+    file: "peers/lvpdb-tps2482.py"
+    numberOfGpios: 1
+    0 -> gpioPortA@9
+
+sm_tps: I2C.ScriptedI2cSlave @ i2c1 0x42
+    file: "peers/lvpdb-tps2482.py"
+    numberOfGpios: 1
+    0 -> gpioPortC@7
+
+af_tps: I2C.ScriptedI2cSlave @ i2c1 0x41
+    file: "peers/lvpdb-tps2482.py"
+    numberOfGpios: 1
+    0 -> gpioPortC@4
+
+cprf_tps: I2C.ScriptedI2cSlave @ i2c1 0x47
+    file: "peers/lvpdb-tps2482.py"
+    numberOfGpios: 1
+    0 -> gpioPortC@2

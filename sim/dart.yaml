@@ -1,0 +1,4 @@
+machines:
+  m:
+    mcu: STM32F042K6
+    elf: ../build/Debug/DART/DART.elf

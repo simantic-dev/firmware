@@ -1,0 +1,6 @@
+# DCU parts: SD card on SPI1 (PA5/PA6/PA7; no chip select modelled, so the card is selected
+# whenever the firmware talks SPI1).
+# Paths resolve against the working directory: run sim from sim/. out/dcu-sd.img is made by run.sh.
+sdcard: SPI.SDCard @ spi1 0
+    imageFile: "out/dcu-sd.img"
+    capacity: 33554432

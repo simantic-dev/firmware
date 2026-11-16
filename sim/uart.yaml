@@ -1,0 +1,4 @@
+machines:
+  m:
+    mcu: STM32F446RE
+    elf: ../build/Debug/UART/UART.elf
