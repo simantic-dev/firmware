@@ -155,10 +155,19 @@ flowchart LR
 - `bms-console-peer.py`, `bms-can-observer.py`, `sensornode-canpeer.py`: console typist and passive CAN nodes.
 
 **Gaps, with the evidence:**
-- **Every F446 board needs both CAN1 and CAN2 on a bus.** FRONT alone with only CAN1 wired: `FEB_CAN_TX_Send` was
-  called 580,258 times in 4.6 s, `HAL_CAN_AddTxMessage` never, zero frames on the bus. Add a node on CAN2 and it sends 0x26 and
-  friends. The DCU alone with CAN2 unwired printed nothing at all; with CAN2 wired it boots. This follows the board-level
-  rule the simulator applies to an unwired bxCAN, so each scenario gives CAN2 a passive node. `unverified` against FEB hardware.
+- **Every F446 board needs both CAN1 and CAN2 on a bus.** **Corrected 2026-11-16:** an earlier version of this page said
+  FRONT with CAN2 unwired called `FEB_CAN_TX_Send` 580,258 times in 4.6 s with zero frames on the wire. That figure does not
+  reproduce; the investigation measured 56 `FEB_CAN_TX_Send` calls in 4.6 s (sim 0.10.0, `Sensor_Nodes_FRONT`; not re-run
+  for this edit). What happens with CAN2 unwired: `HAL_CAN_Start(hcan2)` times out (CAN2 MSR `0x40006804` polled 27,326
+  times at the INAK wait loop, pc `0x0800b66a`); `FEB_CAN_Init` then calls `HAL_CAN_Stop(hcan1)` and `FEB_CAN_DeInit()` and
+  returns an error, which `FEB_Main.c:199` ignores; every later `FEB_CAN_TX_Send` returns NOT_INIT, so `feb_can_tx_enqueue`
+  and `HAL_CAN_AddTxMessage` get 0 hits and nothing reaches the bus. With CAN1 and CAN2 both wired: 132 `FEB_CAN_TX_Send`,
+  132 enqueue, 132 `HAL_CAN_AddTxMessage`, and FRONT sends 0x26 and friends. Firmware observation: the return value of
+  `FEB_CAN_Init` is ignored, and a CAN2 failure de-inits CAN1. The simulator's INAK wait on a floating CAN2 RX is deliberate
+  (RM0390: the peripheral waits for 11 recessive bits; the model cites a NUCLEO-F446RE rev A measurement). The simulator gap
+  is that a scenario cannot declare "transceiver fitted, bus empty" (a one-endpoint medium is rejected), so each scenario
+  gives CAN2 a passive node. `unverified`: whether the FEB board has a CAN2 transceiver. The DCU alone with CAN2 unwired
+  printed nothing at all; with CAN2 wired it boots.
 - **No RFM95 (LoRa) peer.** DCU logs `Chip version mismatch: 0x00 (expected 0x12)` 5 times then `FATAL: Init failed`; the
   DCU-to-DCU_Receiver telemetry link is not exercised.
 - **BMS cannot leave LV_POWER on its own.** With the shutdown loop open the health check backs out (2.52 s), and
