@@ -7,7 +7,7 @@ read_Acceleration, read_Angular_Rate). The firmware reads WHO_AM_I (0x0F, expect
 
 Sensitivities (LSM6DSOX datasheet, Table 3): 2 g = 0.061 mg/LSB, 2000 dps = 70 mdps/LSB.
 
-Run from feb-peers/: sim STM32F446RE run --elf <FRONT.elf> --board sensornode-front.board --timeout 10
+Used by sim/front.yaml, sim/rear.yaml and sim/scenario.yaml.
 """
 
 # MODELED SIMPLIFICATION: the whole drive profile below is invented, not logged from a car.

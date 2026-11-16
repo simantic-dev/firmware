@@ -5,7 +5,7 @@ read_Magnetic_Field_Data). WHO_AM_I (0x0F, expects 0x3D), then 155 Hz UHP, +/-16
 continuous mode. Output OUT_X_L 0x28..0x2D, auto-increment set by bit 7 of the sub-address.
 Sensitivity at +/-16 gauss: 1711 LSB/gauss (LIS3MDL datasheet, Table 3).
 
-Run from feb-peers/ together with sensornode-lsm6dsox.py (see sensornode-front.board).
+Used by sim/front.yaml, sim/rear.yaml and sim/scenario.yaml.
 """
 
 # MODELED SIMPLIFICATION: horizontal field 0.25 gauss (Earth-field scale, no local anomaly),
