@@ -1,0 +1,1 @@
+[0.001850s] (usart2) .[36m[0] I [MAIN] DART boot: fans@100%, CAN 500kbps, tach-TX @10Hz.[0m

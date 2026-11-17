@@ -1,0 +1,12 @@
+# Sensor node alone. CAN2 gets a passive node too: with nothing on CAN2 the node never transmits (see README).
+machines:
+  sn:
+    mcu: STM32F446RE
+    elf: ../build/Debug/Sensor_Nodes/Sensor_Nodes_FRONT.elf
+    parts:
+      - { name: imu, type: i2c-device, bus: i2c3, address: 0x6A, script: peers/sensornode-lsm6dsox.py }
+      - { name: mag, type: i2c-device, bus: i2c3, address: 0x1C, script: peers/sensornode-lis3mdl.py }
+      - { name: canpeer, type: can-node, script: peers/sensornode-canpeer.py }
+media:
+  - type: can
+    connect: [sn.can1, sn.canpeer]

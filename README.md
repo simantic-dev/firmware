@@ -21,6 +21,10 @@ BMS console (USART2, typed by a peer), BMS firmware's own lines
   5.046 s  E [SM] FAULT ENTRY: FAULT_BMS
 ```
 
+![DART console playback](sim/screenshots/dart-playback.gif)
+
+*Playback of a captured run (virtual time), not real time: sim 0.10.2 (build 83eb7a66), `sim run --scenario sim/dart.yaml --timeout 3` (3 s virtual, 2.2 s wall); the animation shows the first 8.5 ms, where all 72 USART2 bytes are sent, one tick per byte from the frame log (`sim/out/dart/frames.jsonl`).*
+
 ![BMS console excerpt](sim/screenshots/console.png)
 
 The BMS firmware's console output from `sim/run.sh` (scenario.yaml, 10 virtual seconds, Simantic `sim` 0.10.0
@@ -140,7 +144,7 @@ flowchart LR
 | `sim/lvpdb.yaml` | 10 s | 21 s | runs: 7/7 TPS2482, 140 frames sent |
 | `sim/dcu.yaml` | 10 s | 7 s | runs: SD mounts and logs; RFM95 radio fails 5/5 init attempts (no radio peer) |
 | `sim/dcu-receiver.yaml`, `sim/uart.yaml` | 3 s | 1 s | boot and print consoles; nothing to talk to |
-| `sim/dart.yaml` (DART, STM32F042K6) | 3 s | 3 s | boots to the main loop (symbol trace), but prints nothing: see gaps |
+| `sim/dart.yaml` (DART, STM32F042K6) | 3 s | 3 s | **MEASURED on sim 0.10.2 (build 83eb7a66), 2026-11-17, 2.2 s wall:** boots and prints `DART boot: fans@100%, CAN 500kbps, tach-TX @10Hz` on USART2 (72 bytes: ANSI colour prefix, `[0] I [MAIN] ...` text, ANSI reset, CRLF; the line has no trailing full stop) from 1.763 ms to 7.931 ms, the DMA transfer of 72 bytes complete. Nothing further in the 3 s run. Image built with `cmake --build build/Debug --target DART.elf` |
 | DASH (STM32F469), UART_TEST (STM32U575) | | | `unverified`: neither MCU is in `sim models` for 0.10.0, not run |
 
 **The peers** in `sim/peers/` are Python models following the firmware's own drivers and the team's CAN definitions
@@ -157,8 +161,7 @@ flowchart LR
 **Gaps, with the evidence:**
 - **Every F446 board needs both CAN1 and CAN2 on a bus.** **Corrected 2026-11-16:** an earlier version of this page said
   FRONT with CAN2 unwired called `FEB_CAN_TX_Send` 580,258 times in 4.6 s with zero frames on the wire. That figure does not
-  reproduce; the investigation measured 56 `FEB_CAN_TX_Send` calls in 4.6 s (sim 0.10.0, `Sensor_Nodes_FRONT`; not re-run
-  for this edit). What happens with CAN2 unwired: `HAL_CAN_Start(hcan2)` times out (CAN2 MSR `0x40006804` polled 27,326
+  reproduce; the investigation measured 56 `FEB_CAN_TX_Send` calls in 4.6 s (sim 0.10.0, `Sensor_Nodes_FRONT`; **re-run on 0.10.2 build 83eb7a66 with `sim/front-can2-unwired.yaml`, `--trace-symbol FEB_CAN_TX_Send --timeout 4.6`: 56 calls, 0 `HAL_CAN_AddTxMessage` hits, 0 CAN frames in the frame log, identical**). What happens with CAN2 unwired: `HAL_CAN_Start(hcan2)` times out (CAN2 MSR `0x40006804` polled 27,326
   times at the INAK wait loop, pc `0x0800b66a`); `FEB_CAN_Init` then calls `HAL_CAN_Stop(hcan1)` and `FEB_CAN_DeInit()` and
   returns an error, which `FEB_Main.c:199` ignores; every later `FEB_CAN_TX_Send` returns NOT_INIT, so `feb_can_tx_enqueue`
   and `HAL_CAN_AddTxMessage` get 0 hits and nothing reaches the bus. With CAN1 and CAN2 both wired: 132 `FEB_CAN_TX_Send`,
@@ -175,8 +178,7 @@ flowchart LR
   wiring, so ENERGIZED and DRIVE are not reached by the real BMS. The PCU scenario takes its DRIVE state from a peer.
 - **No TPS2482 on the BMS and PCU I2C1** (`CONFIG write failed for BMS @ 0x40`, repeated by the PCU every 250 ms).
 - **No GPS on FRONT and REAR UART4** (`No NMEA at either baud; module may be absent`).
-- **DART (F042K6): no console output.** The firmware reaches `FEB_Main_Loop` and calls `HAL_UART_Transmit_DMA` for 72 bytes at
-  1.76 ms; nothing appears on USART2 in 3 s. Cause not established.
+- **DART (F042K6): fixed in sim 0.10.2.** On 0.10.0 the firmware called `HAL_UART_Transmit_DMA` for 72 bytes at 1.76 ms and nothing appeared on USART2; the simulator release notes list the F042 USART1/USART2 DMA wiring as fixed in 0.10.2, and the same unmodified image now emits all 72 bytes. No CAN frame is sent by the tach transmitter in the single-board run (frame log holds only the 72 USART2 bytes in 3 s); the `tach-TX @10Hz` claim in the banner is the firmware's, not observed on a bus here.
 - The simulator warns that the boards enable HSE but declare no crystal and assumes 8 MHz; the `.ioc` files say 8 MHz.
 - Not run: DCU_Receiver with a radio, DASH, UART_TEST, a CAN2 bus shared between boards.
 
