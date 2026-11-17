@@ -1,3 +1,5 @@
+> **[Simantic](https://simantic.com)** runs this firmware on simulated hardware, no board needed. Try it at [simantic.com](https://simantic.com).
+
 ## This fork: the car in a simulator
 
 This is Simantic's fork of Formula Electric at Berkeley's SN5 firmware, kept as a simulation showcase. It runs the
