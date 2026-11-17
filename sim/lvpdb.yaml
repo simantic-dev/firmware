@@ -1,0 +1,10 @@
+machines:
+  lvpdb:
+    mcu: STM32F446RE
+    overlay: lvpdb.board
+    elf: ../build/Debug/LVPDB/LVPDB.elf
+    parts:
+      - { name: dash, type: can-node, script: peers/lvpdb-dash.py }
+media:
+  - type: can
+    connect: [lvpdb.can1, lvpdb.dash]

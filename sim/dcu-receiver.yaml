@@ -1,0 +1,4 @@
+machines:
+  m:
+    mcu: STM32F446RE
+    elf: ../build/Debug/DCU_Receiver/DCU_Receiver.elf

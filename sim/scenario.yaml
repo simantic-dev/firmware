@@ -1,0 +1,59 @@
+# The SN5 car, six boards on one CAN1 bus: BMS, PCU, DCU, LVPDB, Sensor_Nodes FRONT and REAR.
+# Run from sim/ (overlay file: paths resolve against the working directory). 10 virtual seconds.
+machines:
+  bms:
+    mcu: STM32F446RE
+    elf: ../build/Debug/BMS/BMS.elf
+    parts:
+      - { name: adbms,       type: spi-device,  bus: spi1, cs: PC3, script: peers/adbms6830b.py }
+      - { name: consolepeer, type: uart-device, baud: 115200, script: peers/bms-console-peer.py }
+  pcu:
+    mcu: STM32F446RE
+    elf: ../build/Debug/PCU/PCU.elf
+    parts:
+      - { name: rms, type: can-node, script: peers/sensornode-canpeer.py }
+    analog:
+      - { adc: adc3, channel: 13, points: [[0, 1.177226], [3.5, 1.177226], [6.35, 1.975128], [6.52, 1.975128], [6.53, 1.966729], [7, 1.177226], [8.49, 1.177226], [8.5, 1.513185], [10, 1.513185]] }
+      - { adc: adc3, channel: 12, points: [[0, 0.539000], [3.5, 0.539000], [6.35, 1.280950], [6.52, 1.280950], [6.53, 1.273140], [7, 0.539000], [8.49, 0.539000], [8.5, 0.851400], [8.99, 0.851400], [9, 0.757680], [10, 0.757680]] }
+      - { adc: adc1, channel: 1, points: [[0, 0.282480], [0.99, 0.282480], [1, 0.507804], [2.99, 0.507804], [3, 0.282480], [6.99, 0.282480], [7, 0.507804], [7.99, 0.507804], [8, 0.282480], [10, 0.282480]] }
+      - { adc: adc1, channel: 0, points: [[0, 0.380160], [0.99, 0.380160], [1, 0.750816], [2.99, 0.750816], [3, 0.380160], [6.99, 0.380160], [7, 0.750816], [7.99, 0.750816], [8, 0.380160], [10, 0.380160]] }
+      - { adc: adc1, channel: 14, points: [[0, 0.282480], [0.99, 0.282480], [1, 0.507804], [2.99, 0.507804], [3, 0.282480], [6.99, 0.282480], [7, 0.507804], [7.99, 0.507804], [8, 0.282480], [10, 0.282480]] }
+  dcu:
+    mcu: STM32F446RE
+    overlay: dcu.board
+    elf: ../build/Debug/DCU/DCU.elf
+    parts:
+      - { name: can2peer, type: can-node, script: peers/sensornode-canpeer.py }
+  lvpdb:
+    mcu: STM32F446RE
+    overlay: lvpdb.board
+    elf: ../build/Debug/LVPDB/LVPDB.elf
+    parts:
+      - { name: dash, type: can-node, script: peers/lvpdb-dash.py }
+  front:
+    mcu: STM32F446RE
+    elf: ../build/Debug/Sensor_Nodes/Sensor_Nodes_FRONT.elf
+    parts:
+      - { name: can2peer, type: can-node, script: peers/sensornode-canpeer.py }
+      - { name: imu, type: i2c-device, bus: i2c3, address: 0x6A, script: peers/sensornode-lsm6dsox.py }
+      - { name: mag, type: i2c-device, bus: i2c3, address: 0x1C, script: peers/sensornode-lis3mdl.py }
+  rear:
+    mcu: STM32F446RE
+    elf: ../build/Debug/Sensor_Nodes/Sensor_Nodes_REAR.elf
+    parts:
+      - { name: can2peer, type: can-node, script: peers/sensornode-canpeer.py }
+      - { name: imu, type: i2c-device, bus: i2c3, address: 0x6A, script: peers/sensornode-lsm6dsox.py }
+      - { name: mag, type: i2c-device, bus: i2c3, address: 0x1C, script: peers/sensornode-lis3mdl.py }
+media:
+  - type: can
+    connect: [bms.can1, pcu.can1, dcu.can1, lvpdb.can1, front.can1, rear.can1, lvpdb.dash]
+  - type: can
+    connect: [pcu.can2, pcu.rms]
+  - type: can
+    connect: [dcu.can2, dcu.can2peer]
+  - type: can
+    connect: [front.can2, front.can2peer]
+  - type: can
+    connect: [rear.can2, rear.can2peer]
+  - type: uart
+    connect: [bms.usart2, bms.consolepeer]

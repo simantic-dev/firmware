@@ -1,0 +1,15 @@
+# DCU alone: the SD card, a CAN peer replaying other boards' traffic on CAN1, and a passive node on
+# CAN2 (a bxCAN with nothing on its bus hangs HAL_CAN_Start, see README).
+machines:
+  dcu:
+    mcu: STM32F446RE
+    overlay: dcu.board
+    elf: ../build/Debug/DCU/DCU.elf
+    parts:
+      - { name: canpeer,  type: can-node, script: peers/dcu-can-peer.py }
+      - { name: can2peer, type: can-node, script: peers/sensornode-canpeer.py }
+media:
+  - type: can
+    connect: [dcu.can1, dcu.canpeer]
+  - type: can
+    connect: [dcu.can2, dcu.can2peer]
