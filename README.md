@@ -1,3 +1,68 @@
+## Demo: the six-board SN5 car in simulation
+
+```sh
+./demo          # after ./demo build (once)
+```
+
+![six boards boot, the BMS reads 140 cells, faults in precharge, and the PCU holds torque at zero](media/feb-car.gif)
+
+```mermaid
+flowchart LR
+  bms["BMS<br/>STM32F446RE"]
+  pcu["PCU<br/>STM32F446RE"]
+  dcu["DCU<br/>STM32F446RE"]
+  lvpdb["LVPDB<br/>STM32F446RE"]
+  front["Sensor node FRONT<br/>STM32F446RE"]
+  rear["Sensor node REAR<br/>STM32F446RE"]
+  bus(("car CAN bus<br/>CAN1 of all six"))
+  adbms(["10 ADBMS6830B, 140 cells<br/>sim/peers/adbms6830b.py"])
+  typist(["console typist<br/>sim/peers/bms-console-peer.py"])
+  pedals(["pedal and brake voltages<br/>analog points in sim/scenario.yaml"])
+  tps(["7 TPS2482 power monitors<br/>sim/peers/lvpdb-tps2482.py"])
+  dash(["DASH stand-in<br/>sim/peers/lvpdb-dash.py"])
+  sd(["SD card<br/>32 MB FAT16 image"])
+  imuf(["LSM6DSOX + LIS3MDL<br/>sim/peers/sensornode-*.py"])
+  imur(["LSM6DSOX + LIS3MDL<br/>sim/peers/sensornode-*.py"])
+  host["terminal (./demo)"]
+  adbms -- "SPI1, cs PC3: cell voltages, temperatures" --- bms
+  typist -- "USART2: typed status, cells and precharge commands" --> bms
+  pedals -- "ADC3 ch 13, 12: APPS1, APPS2<br/>ADC1 ch 1, 0, 14: brake pressure 1, 2, brake switch" --> pcu
+  tps -- "I2C1, 7 addresses: bus voltage, current, power-good pins" --- lvpdb
+  dcu -- "SPI1: log_0001.csv" --> sd
+  imuf -- "I2C3 0x6A, 0x1C: accel, gyro, field" --- front
+  imur -- "I2C3 0x6A, 0x1C: accel, gyro, field" --- rear
+  bms -- "0x5 bms_state, 0x2 pack and cell voltage, 0x3 temperature" --> bus
+  pcu -- "0x38 throttle, 0x9 brake, 0xC0 torque command" --> bus
+  lvpdb -- "0x16 rail voltages, 0x17 / 0x18 rail currents" --> bus
+  front -- "0x26 acceleration, 0x28 gyro, 0x47-0x4B fusion" --> bus
+  rear -- "0x27 acceleration, 0x29 gyro, 0x57-0x5B fusion" --> bus
+  dash -- "0x10 dash_state: switch1, switch2" --> bus
+  bus -- "every frame, logged to SD" --> dcu
+  bms -- "USART2 console lines" --> host
+  bus -- "every frame (sim --frames)" --> host
+```
+
+The six STM32F446RE images (BMS, PCU, DCU, LVPDB, Sensor_Nodes FRONT and REAR) are the team's firmware, built
+unmodified, and they boot and talk on one simulated CAN bus (`sim/scenario.yaml`, 6.5 virtual seconds). `./demo`
+prints two kinds of line: values decoded from CAN frames a board sent (layouts from
+`common/FEB_CAN_Library_SN4/gen/FEB_CAN.dbc`), and lines the firmware printed on its own console. What it shows: the BMS
+reads 140 cells from the ADBMS chain, a typed console command asks for PRECHARGE, the firmware faults on
+`IVT current-sensor timeout` (there is no current-sensor peer), and the PCU keeps its torque command at 0.0 Nm with the
+inverter disabled while the throttle goes to 100 %, because the BMS never reaches DRIVE.
+
+**Synthetic:** everything off the six MCUs is a Python peer or a scripted input at the transaction level (CAN frames,
+SPI/I2C bytes, ADC pin voltages), not an electrical model. The cell voltages, pack sag and cell temperatures come from
+the ADBMS peer's invented load profile; the rail currents from the TPS2482 peer's invented loads; the acceleration from
+the IMU peer's invented profile; the pedal and brake voltages are scripted points; the DASH is a stand-in that only
+sends `dash_state`; the BMS console commands are typed by a peer. Each board's CAN2 has a passive node so the controller
+can start (not drawn). There is no inverter, IVT current sensor, GPS, LoRa radio or shutdown-loop wiring. Nothing here
+is measured against the real car.
+
+Prerequisites: Simantic's `sim` 0.10.1 (`curl -fsSL https://simantic.com/install | sh`; proprietary, not open source),
+`mtools` for the DCU's SD image, plus `arm-none-eabi-gcc`, `cmake` and `ninja` for `./demo build` (it runs
+`sim/build.sh`: submodules, then the repo's own Debug preset). The run took 2.5 to 5 minutes of wall clock on a heavily
+loaded laptop; the GIF is sped up 16x.
+
 ## This fork: the car in a simulator
 
 This is Simantic's fork of Formula Electric at Berkeley's SN5 firmware, kept as a simulation showcase. It runs the
