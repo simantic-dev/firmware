@@ -178,7 +178,7 @@ flowchart LR
   wiring, so ENERGIZED and DRIVE are not reached by the real BMS. The PCU scenario takes its DRIVE state from a peer.
 - **No TPS2482 on the BMS and PCU I2C1** (`CONFIG write failed for BMS @ 0x40`, repeated by the PCU every 250 ms).
 - **No GPS on FRONT and REAR UART4** (`No NMEA at either baud; module may be absent`).
-- **DART (F042K6): fixed in sim 0.10.2.** On 0.10.0 the firmware called `HAL_UART_Transmit_DMA` for 72 bytes at 1.76 ms and nothing appeared on USART2; the simulator release notes list the F042 USART1/USART2 DMA wiring as fixed in 0.10.2, and the same unmodified image now emits all 72 bytes. No CAN frame is sent by the tach transmitter in the single-board run (frame log holds only the 72 USART2 bytes in 3 s); the `tach-TX @10Hz` claim in the banner is the firmware's, not observed on a bus here.
+- **DART (F042K6): fixed in sim 0.10.1 (re-run on 0.10.2).** On 0.10.0 the firmware called `HAL_UART_Transmit_DMA` for 72 bytes at 1.76 ms and nothing appeared on USART2; the simulator release notes list the F042 USART1/USART2 DMA wiring as fixed in 0.10.1, and the same unmodified image now emits all 72 bytes. No CAN frame is sent by the tach transmitter in the single-board run (frame log holds only the 72 USART2 bytes in 3 s); the `tach-TX @10Hz` claim in the banner is the firmware's, not observed on a bus here.
 - The simulator warns that the boards enable HSE but declare no crystal and assumes 8 MHz; the `.ioc` files say 8 MHz.
 - Not run: DCU_Receiver with a radio, DASH, UART_TEST, a CAN2 bus shared between boards.
 
